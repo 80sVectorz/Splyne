@@ -1,5 +1,0 @@
-setup.py
-splyne.egg-info/PKG-INFO
-splyne.egg-info/SOURCES.txt
-splyne.egg-info/dependency_links.txt
-splyne.egg-info/top_level.txt
