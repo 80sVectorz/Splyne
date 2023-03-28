@@ -1,5 +1,6 @@
 # Development test files:
 devtest/
+devtest.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
