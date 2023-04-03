@@ -1,6 +1,6 @@
 """ curves2D.py Contains definitions for 2D base curve functions E.G Bezier curves. """
 import typing
-from lerp import lerp, inv_lerp
+from splyne.lerp import lerp, inv_lerp
 import numpy as np
 from enum import Enum
 
@@ -50,22 +50,43 @@ class CurveBezier(Curve):
     def sample(self, t: float) -> tuple[float, float]:
         """
         Samples the curve position at t.
+        Uses Matrix version of Polynomial coefficients for cubic Bézier.
+        For any other length DeCasteljau's algorithm is used.
         --------------------------------
         t (float): The point on the curve as a 0 to 1 float.
         """
+        if len(self.control_points) == 4:
+            points_x,points_y = zip(*self.control_points)
+            
+            cmatrix = np.array([
+                [ 1,0,0,0 ],
+                [-3,3,0,0 ],
+                [3,-6,3,0 ],
+                [-1,3,-3,1]])
 
-        points = []
-        for p in self.control_points:
-            points.append(p)
-        while len(points) != 1:
-            new_points = []
-            for i in range(len(points)-1):
-                new_points.append((
-                    lerp(points[i][0],points[i+1][0],t),
-                    lerp(points[i][1],points[i+1][1],t)
-                    ))
-            points = new_points.copy()
-        return points[0]
+            tmatrix = np.array([1,t,t**2,t**3])
+
+
+            p_x = np.matmul(cmatrix,np.array([points_x[0],points_x[1],points_x[2],points_x[3]]))
+            p_y = np.matmul(cmatrix,np.array([points_y[0],points_y[1],points_y[2],points_y[3]]))
+            p_x = np.matmul(p_x,tmatrix)
+            p_y = np.matmul(p_y,tmatrix)
+
+            p = (p_x,p_y)
+            return p
+        else:
+            points = []
+            for p in self.control_points:
+                points.append(p)
+            while len(points) != 1:
+                new_points = []
+                for i in range(len(points)-1):
+                    new_points.append((
+                        lerp(points[i][0],points[i+1][0],t),
+                        lerp(points[i][1],points[i+1][1],t)
+                        ))
+                points = new_points.copy()
+            return points[0]
 
 
 
